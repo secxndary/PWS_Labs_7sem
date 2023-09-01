@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Web;
-using System.Web.SessionState;
 
 namespace PWS_Lab1
 {
     public class MyHandler : IHttpHandler
     {
         private int _result;
+        private readonly Stack<int> _stack = new Stack<int>();
 
         public bool IsReusable => true;
 
@@ -19,7 +19,12 @@ namespace PWS_Lab1
             {
                 case "GET":
                     res.ContentType = "application/json";
-                    res.Write("{\"result\": " + _result + "}");
+                    res.Write(
+                        "{\"result\": " + 
+                            (_stack.Count > 0 ? 
+                            (_result + _stack.Peek()) : 
+                            _result) + 
+                        "}");
                     break;
 
                 case "POST":
@@ -31,14 +36,12 @@ namespace PWS_Lab1
                 case "PUT":
                     int addParameter;
                     int.TryParse(req.QueryString["add"], out addParameter);
-                    var stack = GetSessionStack(context.Session);
-                    stack.Push(addParameter);
+                    _stack.Push(addParameter);
                     break;
 
                 case "DELETE":
-                    stack = GetSessionStack(context.Session);
-                    if (stack.Count > 0)
-                        stack.Pop();
+                    if (_stack.Count > 0)
+                        _stack.Pop();
                     break;
 
                 default:
@@ -47,14 +50,6 @@ namespace PWS_Lab1
                     res.Write("<h1>[ERROR] 405: Method Not Allowed</h1>");
                     break;
             }
-        }
-
-        private Stack<int> GetSessionStack(HttpSessionState session)
-        {
-            if (session["Stack"] == null)
-                session["Stack"] = new Stack<int>();
-
-            return (Stack<int>)session["Stack"];
         }
     }
 }

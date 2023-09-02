@@ -18,13 +18,9 @@ namespace PWS_Lab1
             switch (req.HttpMethod)
             {
                 case "GET":
+                    var result = (_stack.Count > 0) ? (_result + _stack.Peek()) : _result;
                     res.ContentType = "application/json";
-                    res.Write(
-                        "{\"result\": " + 
-                            (_stack.Count > 0 ? 
-                            (_result + _stack.Peek()) : 
-                            _result) + 
-                        "}");
+                    res.Write(new { result });
                     break;
 
                 case "POST":

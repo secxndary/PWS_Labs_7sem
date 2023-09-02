@@ -18,34 +18,54 @@ namespace PWS_Lab1
             switch (req.HttpMethod)
             {
                 case "GET":
-                    var result = (_stack.Count > 0) ? (_result + _stack.Peek()) : _result;
                     res.ContentType = "application/json";
-                    res.Write(new { result });
+                    res.Write(
+                        "{\"result\": " +
+                            (_stack.Count > 0 ?
+                            (_result + _stack.Peek()) :
+                            _result) +
+                        "}");
                     break;
 
                 case "POST":
                     int resultParameter;
-                    int.TryParse(req.QueryString["result"], out resultParameter);
+                    if (!int.TryParse(req.QueryString["result"], out resultParameter))
+                    {
+                        SendResponse(res, 400, "[ERROR] Enter integer parameter.");
+                        break;
+                    }
                     _result += resultParameter;
                     break;
 
                 case "PUT":
                     int addParameter;
-                    int.TryParse(req.QueryString["add"], out addParameter);
+                    if (!int.TryParse(req.QueryString["add"], out addParameter))
+                    {
+                        SendResponse(res, 400, "[ERROR] Enter integer parameter.");
+                        break;
+                    }
                     _stack.Push(addParameter);
                     break;
 
                 case "DELETE":
-                    if (_stack.Count > 0)
-                        _stack.Pop();
+                    if (_stack.Count <= 0)
+                    {
+                        SendResponse(res, 400, "[ERROR] Stack is empty."); 
+                        break;
+                    }
+                    _stack.Pop();
                     break;
 
                 default:
-                    res.StatusCode = 405;
-                    res.AddHeader("Content-Type", "text/html");
-                    res.Write("<h1>[ERROR] 405: Method Not Allowed</h1>");
+                    SendResponse(res, 405, "[ERROR] Method Not Allowed.");
                     break;
             }
+        }
+
+        private void SendResponse(HttpResponse res, int code, string message)
+        {
+            res.StatusCode = code;
+            res.Write(message);
         }
     }
 }

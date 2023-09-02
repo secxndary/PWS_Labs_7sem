@@ -17,16 +17,20 @@ namespace PWS_Lab2.Controllers
         }
 
         [HttpPost]
-        public IHttpActionResult Post([FromUri] int result)
+        public IHttpActionResult Post([FromUri] string result)
         {
-            _result += result;
+            if (!int.TryParse(result, out int resultParameter))
+                return BadRequest("[ERROR] Enter integer parameter.");
+            _result += resultParameter;
             return Ok();
         }
 
         [HttpPut]
-        public IHttpActionResult Put([FromUri] int add)
+        public IHttpActionResult Put([FromUri] string add)
         {
-            _stack.Push(add);
+            if (!int.TryParse(add, out int addParameter))
+                return BadRequest("[ERROR] Enter integer parameter.");
+            _stack.Push(addParameter);
             return Ok();
         }
 
@@ -34,7 +38,7 @@ namespace PWS_Lab2.Controllers
         public IHttpActionResult Delete()
         {
             if (_stack.Count <= 0)
-                return BadRequest();
+                return BadRequest("[ERROR] Stack is empty.");
             _stack.Pop();
             return Ok();
         }

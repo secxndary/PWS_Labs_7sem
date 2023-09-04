@@ -4,49 +4,96 @@ using System.Linq;
 using System.Web.Http;
 using PWS_Lab3.Context;
 using PWS_Lab3.Models;
+using System;
+using System.Net.Http;
+using System.Net;
+using System.Net.Http.Headers;
 
 namespace PWS_Lab3.Controllers
 {
     public class PwsController : ApiController
     {
-        private StudentContext _repository = new StudentContext();
+        private readonly StudentContext _repository = new StudentContext();
+
 
         [HttpGet]
-        public async Task<IHttpActionResult> Get()
+        public async Task<HttpResponseMessage> Get([FromUri] string contentType)
         {
             var students = await _repository.Students.ToListAsync();
-            return Ok(students);
+            var response = Request.CreateResponse(HttpStatusCode.OK, students);
+
+            SetContentTypeHeader(response.Content.Headers, contentType);
+
+            return response;
         }
 
         [HttpPost]
-        public async Task<IHttpActionResult> Post([FromBody] Student student)
+        public async Task<HttpResponseMessage> Post([FromBody] Student student, [FromUri] string contentType)
         {
-            var createdStudent = _repository.Students.Add(student);
-            await _repository.SaveChangesAsync();
-            return Ok(createdStudent);
+            try
+            {
+                var createdStudent = _repository.Students.Add(student);
+                await _repository.SaveChangesAsync();
+
+                var response = Request.CreateResponse(HttpStatusCode.OK, createdStudent);
+                SetContentTypeHeader(response.Content.Headers, contentType);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
         }
 
         [HttpPut]
-        public async Task<IHttpActionResult> Put([FromBody] Student student)
+        public async Task<HttpResponseMessage> Put([FromBody] Student student, [FromUri] string contentType)
         {
-            var studentToUpdate = await _repository.Students.Where(s => s.Id == student.Id).SingleOrDefaultAsync();
+            try
+            {
+                var studentToUpdate = await _repository.Students.Where(s => s.Id == student.Id).SingleOrDefaultAsync();
             
-            studentToUpdate.Name = student.Name;
-            studentToUpdate.Phone = student.Phone;
+                studentToUpdate.Name = student.Name;
+                studentToUpdate.Phone = student.Phone;
             
-            await _repository.SaveChangesAsync();
-            return Ok(studentToUpdate);
+                await _repository.SaveChangesAsync();
+
+                var response = Request.CreateResponse(HttpStatusCode.OK, studentToUpdate);
+                SetContentTypeHeader(response.Content.Headers, contentType);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
         }
 
         [HttpDelete]
-        public async Task <IHttpActionResult> Delete([FromUri] int id)
+        public async Task <HttpResponseMessage> Delete([FromUri] int id, [FromUri] string contentType)
         {
-            var studentToDelete = await _repository.Students.Where(s => s.Id == id).SingleOrDefaultAsync();
-            
-            var deletedStudent = _repository.Students.Remove(studentToDelete);
-            await _repository.SaveChangesAsync();
-            
-            return Ok(deletedStudent);
+            try
+            {
+                var studentToDelete = await _repository.Students.Where(s => s.Id == id).SingleOrDefaultAsync();
+                var deletedStudent = _repository.Students.Remove(studentToDelete);
+                await _repository.SaveChangesAsync();
+
+                var response = Request.CreateResponse(HttpStatusCode.OK, deletedStudent);
+                SetContentTypeHeader(response.Content.Headers, contentType);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
+
+
+        private void SetContentTypeHeader(HttpContentHeaders contentHeaders, string contentType)
+        {
+            contentHeaders.ContentType = new MediaTypeHeaderValue(
+                (contentType == "xml") ? "text/xml" : "application/json");
         }
     }
 }

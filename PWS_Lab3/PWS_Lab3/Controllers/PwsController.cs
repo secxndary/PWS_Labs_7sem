@@ -1,7 +1,9 @@
 ﻿using System.Data.Entity;
 using System.Threading.Tasks;
+using System.Linq;
 using System.Web.Http;
 using PWS_Lab3.Context;
+using PWS_Lab3.Models;
 
 namespace PWS_Lab3.Controllers
 {
@@ -10,28 +12,41 @@ namespace PWS_Lab3.Controllers
         private StudentContext _repository = new StudentContext();
 
         [HttpGet]
-        async public Task<IHttpActionResult> Get()
+        public async Task<IHttpActionResult> Get()
         {
             var students = await _repository.Students.ToListAsync();
             return Ok(students);
         }
 
         [HttpPost]
-        public IHttpActionResult Post()
+        public async Task<IHttpActionResult> Post([FromBody] Student student)
         {
-            return Ok();
+            var createdStudent = _repository.Students.Add(student);
+            await _repository.SaveChangesAsync();
+            return Ok(createdStudent);
         }
 
         [HttpPut]
-        public IHttpActionResult Put()
+        public async Task<IHttpActionResult> Put([FromBody] Student student)
         {
-            return Ok();
+            var studentToUpdate = await _repository.Students.Where(s => s.Id == student.Id).SingleOrDefaultAsync();
+            
+            studentToUpdate.Name = student.Name;
+            studentToUpdate.Phone = student.Phone;
+            
+            await _repository.SaveChangesAsync();
+            return Ok(studentToUpdate);
         }
 
         [HttpDelete]
-        public IHttpActionResult Delete()
+        public async Task <IHttpActionResult> Delete([FromUri] int id)
         {
-            return Ok();
+            var studentToDelete = await _repository.Students.Where(s => s.Id == id).SingleOrDefaultAsync();
+            
+            var deletedStudent = _repository.Students.Remove(studentToDelete);
+            await _repository.SaveChangesAsync();
+            
+            return Ok(deletedStudent);
         }
     }
 }

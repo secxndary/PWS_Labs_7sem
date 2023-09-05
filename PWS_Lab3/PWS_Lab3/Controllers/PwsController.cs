@@ -26,7 +26,7 @@ namespace PWS_Lab3.Controllers
 
 
         [HttpGet]
-        public async Task<HttpResponseMessage> Get([FromUri] [DefaultValue(null)] string contentType = null)
+        public async Task<HttpResponseMessage> Get([FromUri] string contentType = null)
         {
             try
             {
@@ -40,67 +40,62 @@ namespace PWS_Lab3.Controllers
             }
         }
 
-        //[HttpPost]
-        //public async Task<IHttpActionResult> Post([FromBody] Student student, [FromUri] string contentType)
-        //{
-        //    try
-        //    {
-        //        var createdStudent = _repository.Students.Add(student);
-        //        await _repository.SaveChangesAsync();
+        [HttpPost]
+        public async Task<HttpResponseMessage> Post([FromBody] Student student, [FromUri] string contentType = null)
+        {
+            try
+            {
+                var createdStudent = _repository.Students.Add(student);
+                await _repository.SaveChangesAsync();
 
-        //        var response = Request.CreateResponse(HttpStatusCode.OK, createdStudent);
-        //        SetResponseContentType(response.Content.Headers, contentType);
+                var response = GetStudentResponse(createdStudent, contentType);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
 
-        //        return response;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-        //    }
-        //}
+        [HttpPut]
+        public async Task<HttpResponseMessage> Put([FromBody] Student student, [FromUri] string contentType = null)
+        {
+            try
+            {
+                var studentToUpdate = await _repository.Students.Where(s => s.Id == student.Id).SingleOrDefaultAsync();
 
-        //[HttpPut]
-        //public async Task<IHttpActionResult> Put([FromBody] Student student, [FromUri] string contentType)
-        //{
-        //    try
-        //    {
-        //        var studentToUpdate = await _repository.Students.Where(s => s.Id == student.Id).SingleOrDefaultAsync();
-            
-        //        studentToUpdate.Name = student.Name;
-        //        studentToUpdate.Phone = student.Phone;
-            
-        //        await _repository.SaveChangesAsync();
+                studentToUpdate.Name = student.Name;
+                studentToUpdate.Phone = student.Phone;
 
-        //        var response = Request.CreateResponse(HttpStatusCode.OK, studentToUpdate);
-        //        SetResponseContentType(response.Content.Headers, contentType);
+                await _repository.SaveChangesAsync();
 
-        //        return response;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-        //    }
-        //}
+                var response = GetStudentResponse(studentToUpdate, contentType);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
 
-        //[HttpDelete]
-        //public async Task <IHttpActionResult> Delete([FromUri] int id, [FromUri] string contentType)
-        //{
-        //    try
-        //    {
-        //        var studentToDelete = await _repository.Students.Where(s => s.Id == id).SingleOrDefaultAsync();
-        //        var deletedStudent = _repository.Students.Remove(studentToDelete);
-        //        await _repository.SaveChangesAsync();
+        [HttpDelete]
+        public async Task<HttpResponseMessage> Delete([FromUri] int id, [FromUri] string contentType = null)
+        {
+            try
+            {
+                var studentToDelete = await _repository.Students.Where(s => s.Id == id).SingleOrDefaultAsync();
+                var deletedStudent = _repository.Students.Remove(studentToDelete);
 
-        //        var response = Request.CreateResponse(HttpStatusCode.OK, deletedStudent);
-        //        SetResponseContentType(response.Content.Headers, contentType);
+                await _repository.SaveChangesAsync();
 
-        //        return response;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
-        //    }
-        //}
+                var response = GetStudentResponse(deletedStudent, contentType);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+        }
 
 
         private HttpResponseMessage GetStudentsResponse(IEnumerable<Student> students, string contentType)
@@ -114,12 +109,33 @@ namespace PWS_Lab3.Controllers
             return response;
         }
 
+        private HttpResponseMessage GetStudentResponse(Student student, string contentType)
+        {
+            var response = new HttpResponseMessage();
+
+            response.Content = (contentType == "xml") ?
+                 new StringContent(ConvertStudentToXml(student), Encoding.UTF8, "text/xml") :
+                 new StringContent(JsonConvert.SerializeObject(student), Encoding.UTF8, "application/json");
+
+            return response;
+        }
+
         private string ConvertStudentsToXml(IEnumerable<Student> students)
         {
             var serializer = new XmlSerializer(typeof(List<Student>));
             using (var writer = new StringWriter())
             {
                 serializer.Serialize(writer, students);
+                return writer.ToString();
+            }
+        }
+
+        private string ConvertStudentToXml(Student student)
+        {
+            var serializer = new XmlSerializer(typeof(Student));
+            using (var writer = new StringWriter())
+            {
+                serializer.Serialize(writer, student);
                 return writer.ToString();
             }
         }

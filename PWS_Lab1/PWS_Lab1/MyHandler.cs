@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Web;
 
 namespace PWS_Lab1
@@ -18,18 +19,13 @@ namespace PWS_Lab1
             switch (req.HttpMethod)
             {
                 case "GET":
+                    var result = (_stack.Count > 0) ? (_result + _stack.Peek()) : _result;
                     res.ContentType = "application/json";
-                    res.Write(
-                        "{\"result\": " +
-                            (_stack.Count > 0 ?
-                            (_result + _stack.Peek()) :
-                            _result) +
-                        "}");
+                    res.Write("{\"result\": " + result + "}");
                     break;
 
                 case "POST":
-                    int resultParameter;
-                    if (!int.TryParse(req.QueryString["result"], out resultParameter))
+                    if (!int.TryParse(req.QueryString["result"], out int resultParameter))
                     {
                         SendResponse(res, 400, "[ERROR] Enter integer parameter.");
                         break;
@@ -38,8 +34,7 @@ namespace PWS_Lab1
                     break;
 
                 case "PUT":
-                    int addParameter;
-                    if (!int.TryParse(req.QueryString["add"], out addParameter))
+                    if (!int.TryParse(req.QueryString["add"], out int addParameter))
                     {
                         SendResponse(res, 400, "[ERROR] Enter integer parameter.");
                         break;

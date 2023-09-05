@@ -7,16 +7,11 @@ using PWS_Lab3.Models;
 using System;
 using System.Net.Http;
 using System.Net;
-using System.Net.Http.Headers;
 using Newtonsoft.Json;
-using System.Xml;
-using System.Collections;
-using System.Web;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using System.Text;
-using System.ComponentModel;
 
 namespace PWS_Lab3.Controllers
 {
@@ -63,6 +58,8 @@ namespace PWS_Lab3.Controllers
             try
             {
                 var studentToUpdate = await _repository.Students.Where(s => s.Id == student.Id).SingleOrDefaultAsync();
+                if (studentToUpdate is null)
+                    throw new Exception($"There is no students with id = {student.Id}");
 
                 studentToUpdate.Name = student.Name;
                 studentToUpdate.Phone = student.Phone;
@@ -84,8 +81,10 @@ namespace PWS_Lab3.Controllers
             try
             {
                 var studentToDelete = await _repository.Students.Where(s => s.Id == id).SingleOrDefaultAsync();
-                var deletedStudent = _repository.Students.Remove(studentToDelete);
+                if (studentToDelete is null)
+                    throw new Exception($"There is no students with id = {id}");
 
+                var deletedStudent = _repository.Students.Remove(studentToDelete);
                 await _repository.SaveChangesAsync();
 
                 var response = GetStudentResponse(deletedStudent, contentType);
@@ -97,7 +96,8 @@ namespace PWS_Lab3.Controllers
             }
         }
 
-
+        // Методы для формирования сообщения респонса типа XML или JSON
+        // одновременно с возвращением соответствующего заголовка Content-Type
         private HttpResponseMessage GetStudentsResponse(IEnumerable<Student> students, string contentType)
         {
             var response = new HttpResponseMessage();
@@ -120,6 +120,7 @@ namespace PWS_Lab3.Controllers
             return response;
         }
 
+        // Методы для конвертации коллекции Student'ов (или одного объекта Student) в XML-строку
         private string ConvertStudentsToXml(IEnumerable<Student> students)
         {
             var serializer = new XmlSerializer(typeof(List<Student>));

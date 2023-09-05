@@ -8,6 +8,13 @@ using System;
 using System.Net.Http;
 using System.Net;
 using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using System.Xml;
+using System.Collections;
+using System.Web;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace PWS_Lab3.Controllers
 {
@@ -17,18 +24,15 @@ namespace PWS_Lab3.Controllers
 
 
         [HttpGet]
-        public async Task<HttpResponseMessage> Get([FromUri] string contentType)
+        public async Task<IHttpActionResult> Get([FromUri] string contentType)
         {
             var students = await _repository.Students.ToListAsync();
-            var response = Request.CreateResponse(HttpStatusCode.OK, students);
-
-            SetContentTypeHeader(response.Content.Headers, contentType);
-
-            return response;
+            var response = SetResponseContentType(students, contentType);
+            return Ok(students);
         }
 
         [HttpPost]
-        public async Task<HttpResponseMessage> Post([FromBody] Student student, [FromUri] string contentType)
+        public async Task<IHttpActionResult> Post([FromBody] Student student, [FromUri] string contentType)
         {
             try
             {
@@ -36,7 +40,7 @@ namespace PWS_Lab3.Controllers
                 await _repository.SaveChangesAsync();
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, createdStudent);
-                SetContentTypeHeader(response.Content.Headers, contentType);
+                SetResponseContentType(response.Content.Headers, contentType);
 
                 return response;
             }
@@ -47,7 +51,7 @@ namespace PWS_Lab3.Controllers
         }
 
         [HttpPut]
-        public async Task<HttpResponseMessage> Put([FromBody] Student student, [FromUri] string contentType)
+        public async Task<IHttpActionResult> Put([FromBody] Student student, [FromUri] string contentType)
         {
             try
             {
@@ -59,7 +63,7 @@ namespace PWS_Lab3.Controllers
                 await _repository.SaveChangesAsync();
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, studentToUpdate);
-                SetContentTypeHeader(response.Content.Headers, contentType);
+                SetResponseContentType(response.Content.Headers, contentType);
 
                 return response;
             }
@@ -70,7 +74,7 @@ namespace PWS_Lab3.Controllers
         }
 
         [HttpDelete]
-        public async Task <HttpResponseMessage> Delete([FromUri] int id, [FromUri] string contentType)
+        public async Task <IHttpActionResult> Delete([FromUri] int id, [FromUri] string contentType)
         {
             try
             {
@@ -79,7 +83,7 @@ namespace PWS_Lab3.Controllers
                 await _repository.SaveChangesAsync();
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, deletedStudent);
-                SetContentTypeHeader(response.Content.Headers, contentType);
+                SetResponseContentType(response.Content.Headers, contentType);
 
                 return response;
             }
@@ -90,10 +94,34 @@ namespace PWS_Lab3.Controllers
         }
 
 
-        private void SetContentTypeHeader(HttpContentHeaders contentHeaders, string contentType)
+        //private void SetResponseContentType(HttpContentHeaders contentHeaders, string contentType, IEnumerable students)
+        //{
+        //    contentHeaders.ContentType = new MediaTypeHeaderValue(
+        //        (contentType == "xml") ? "text/xml" : "application/json");
+
+        //    // To convert JSON text contained in string json into an XML node
+        //    XmlDocument doc = JsonConvert.DeserializeXmlNode(json);
+        //}
+
+        private HttpResponseMessage SetResponseContentType(IEnumerable<Student> students, string contentType)
         {
-            contentHeaders.ContentType = new MediaTypeHeaderValue(
-                (contentType == "xml") ? "text/xml" : "application/json");
+            var response = new HttpResponseMessage();
+
+            response.Content = (contentType == "xml") ?
+                 new StringContent(ConvertStudentsToXml(students), System.Text.Encoding.UTF8, "text/xml") :
+                 new StringContent(JsonConvert.SerializeObject(students), System.Text.Encoding.UTF8, "application/json");
+
+            return response;
+        }
+
+        private string ConvertStudentsToXml(IEnumerable<Student> students)
+        {
+            var serializer = new XmlSerializer(typeof(IEnumerable<Student>));
+            using (var writer = new StringWriter())
+            {
+                serializer.Serialize(writer, students);
+                return writer.ToString();
+            }
         }
     }
 }

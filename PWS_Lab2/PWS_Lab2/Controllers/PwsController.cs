@@ -9,6 +9,7 @@ namespace PWS_Lab2.Controllers
         private static int _result = 0;
         private static readonly Stack<int> _stack = new Stack<int>();
 
+
         [HttpGet]
         public IHttpActionResult Get()
         {

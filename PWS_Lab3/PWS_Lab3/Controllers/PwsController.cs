@@ -15,6 +15,7 @@ using System.Text;
 
 namespace PWS_Lab3.Controllers
 {
+    // Route: localhost:PORT/api/pws
     public class PwsController : ApiController
     {
         private readonly StudentContext _repository = new StudentContext();
@@ -59,7 +60,7 @@ namespace PWS_Lab3.Controllers
             {
                 var studentToUpdate = await _repository.Students.Where(s => s.Id == student.Id).SingleOrDefaultAsync();
                 if (studentToUpdate is null)
-                    throw new Exception($"There is no students with id = {student.Id}");
+                    throw new Exception($"[ERROR] There is no students with id = {student.Id}");
 
                 studentToUpdate.Name = student.Name;
                 studentToUpdate.Phone = student.Phone;
@@ -82,7 +83,7 @@ namespace PWS_Lab3.Controllers
             {
                 var studentToDelete = await _repository.Students.Where(s => s.Id == id).SingleOrDefaultAsync();
                 if (studentToDelete is null)
-                    throw new Exception($"There is no students with id = {id}");
+                    throw new Exception($"[ERROR] There is no students with id = {id}");
 
                 var deletedStudent = _repository.Students.Remove(studentToDelete);
                 await _repository.SaveChangesAsync();

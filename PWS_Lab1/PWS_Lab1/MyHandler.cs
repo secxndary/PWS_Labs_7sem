@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web;
+using System.Web.SessionState;
 
 namespace PWS_Lab1
 {
-    public class MyHandler : IHttpHandler
+    public class MyHandler : IHttpHandler, IRequiresSessionState
     {
         private int _result;
-        private readonly Stack<int> _stack = new Stack<int>();
 
         public bool IsReusable => true;
 
@@ -14,11 +15,22 @@ namespace PWS_Lab1
         {
             var req = context.Request;
             var res = context.Response;
+            
+            var session = HttpContext.Current.Session;
+            var stack = session["Stack"] as Stack<int>;
+            Console.WriteLine(session.SessionID);
+            
+            if (stack is null)
+            {
+                session["Stack"] = new Stack<int>();
+                stack = session["Stack"] as Stack<int>;
+            }
+
 
             switch (req.HttpMethod)
             {
                 case "GET":
-                    var result = (_stack.Count > 0) ? (_result + _stack.Peek()) : _result;
+                    var result = (stack.Count > 0) ? (_result + stack.Peek()) : _result;
                     res.ContentType = "application/json";
                     res.Write("{\"result\": " + result + "}");
                     break;
@@ -38,16 +50,16 @@ namespace PWS_Lab1
                         SendResponse(res, 400, "[ERROR] Enter integer parameter.");
                         break;
                     }
-                    _stack.Push(addParameter);
+                    stack.Push(addParameter);
                     break;
 
                 case "DELETE":
-                    if (_stack.Count <= 0)
+                    if (stack.Count <= 0)
                     {
                         SendResponse(res, 400, "[ERROR] Stack is empty."); 
                         break;
                     }
-                    _stack.Pop();
+                    stack.Pop();
                     break;
 
                 default:

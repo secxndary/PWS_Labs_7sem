@@ -41,7 +41,7 @@ namespace PWS_Lab1
                         SendResponse(res, 400, "[ERROR] Enter integer parameter.");
                         break;
                     }
-                    _result += resultParameter;
+                    _result = resultParameter;
                     break;
 
                 case "PUT":

@@ -22,7 +22,7 @@ namespace PWS_Lab2.Controllers
         {
             if (!int.TryParse(result, out int resultParameter))
                 return BadRequest("[ERROR] Enter integer parameter.");
-            _result += resultParameter;
+            _result = resultParameter;
             return Ok();
         }
 

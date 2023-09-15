@@ -22,7 +22,7 @@
         function sendGetRequest() {
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost:1489/zxc.vad',
+                url: 'http://localhost:1489/zxc.vad',       // localhost:1489 — адрес сайта в IIS
                 success: function (data) {
                     resultElement.text(JSON.stringify(data, null, 2));
                 },

@@ -103,9 +103,9 @@ namespace PWS_Lab3.Controllers
         {
             var response = new HttpResponseMessage();
 
-            response.Content = (contentType == "xml") ?
-                 new StringContent(ConvertStudentsToXml(students), Encoding.UTF8, "text/xml") :
-                 new StringContent(JsonConvert.SerializeObject(students), Encoding.UTF8, "application/json");
+            response.Content = contentType == "xml" 
+                ? new StringContent(ConvertStudentsToXml(students), Encoding.UTF8, "text/xml") 
+                : new StringContent(JsonConvert.SerializeObject(students), Encoding.UTF8, "application/json");
 
             return response;
         }
@@ -114,9 +114,9 @@ namespace PWS_Lab3.Controllers
         {
             var response = new HttpResponseMessage();
 
-            response.Content = (contentType == "xml") ?
-                 new StringContent(ConvertStudentToXml(student), Encoding.UTF8, "text/xml") :
-                 new StringContent(JsonConvert.SerializeObject(student), Encoding.UTF8, "application/json");
+            response.Content = contentType == "xml"
+                ? new StringContent(ConvertStudentToXml(student), Encoding.UTF8, "text/xml") 
+                : new StringContent(JsonConvert.SerializeObject(student), Encoding.UTF8, "application/json");
 
             return response;
         }

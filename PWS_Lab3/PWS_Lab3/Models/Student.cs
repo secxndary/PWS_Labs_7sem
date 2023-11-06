@@ -5,7 +5,7 @@ namespace PWS_Lab3.Models
 {
     public class Student
     {
-        //[Key]
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 

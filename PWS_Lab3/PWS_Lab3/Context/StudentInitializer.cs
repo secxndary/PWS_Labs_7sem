@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
-using PWS_Lab3.Models;
+using PWS_Lab3.Entities.Models;
 
 namespace PWS_Lab3.Context
 {

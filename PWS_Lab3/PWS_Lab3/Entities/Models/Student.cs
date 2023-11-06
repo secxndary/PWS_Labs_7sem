@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PWS_Lab3.Models
+namespace PWS_Lab3.Entities.Models
 {
     public class Student
     {

@@ -15,7 +15,7 @@ namespace PWS_Lab3
 
             // Маршруты Web API
             config.MapHttpAttributeRoutes();
-
+            
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",

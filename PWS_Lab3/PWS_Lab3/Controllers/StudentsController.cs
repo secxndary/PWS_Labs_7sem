@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Web.Http;
-using PWS_Lab3.Context;
-using PWS_Lab3.Models;
 using System;
 using System.Net.Http;
 using System.Net;
@@ -12,17 +10,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using System.Text;
+using PWS_Lab3.Context;
+using PWS_Lab3.Entities.Models;
+using PWS_Lab3.Entities.Exceptions.NotFound;
 
 namespace PWS_Lab3.Controllers
 {
-    // Route: localhost:PORT/api/pws
-    public class PwsController : ApiController
+    // Route: localhost:PORT/api/students
+    public class StudentsController : ApiController
     {
         private readonly StudentContext _repository = new StudentContext();
 
 
         [HttpGet]
-        public async Task<HttpResponseMessage> Get([FromUri] string contentType = null)
+        public async Task<HttpResponseMessage> GetAllStudents([FromUri] string contentType = null)
         {
             try
             {
@@ -37,7 +38,7 @@ namespace PWS_Lab3.Controllers
         }
 
         [HttpPost]
-        public async Task<HttpResponseMessage> Post([FromBody] Student student, [FromUri] string contentType = null)
+        public async Task<HttpResponseMessage> CreateStudent([FromBody] Student student, [FromUri] string contentType = null)
         {
             try
             {
@@ -54,13 +55,13 @@ namespace PWS_Lab3.Controllers
         }
 
         [HttpPut]
-        public async Task<HttpResponseMessage> Put([FromBody] Student student, [FromUri] string contentType = null)
+        public async Task<HttpResponseMessage> UpdateStudent([FromBody] Student student, [FromUri] string contentType = null)
         {
             try
             {
                 var studentToUpdate = await _repository.Students.Where(s => s.Id == student.Id).SingleOrDefaultAsync();
                 if (studentToUpdate is null)
-                    throw new Exception($"[ERROR] There is no students with id = {student.Id}");
+                    throw new StudentNotFoundException(student.Id);
 
                 studentToUpdate.Name = student.Name;
                 studentToUpdate.Phone = student.Phone;
@@ -77,13 +78,13 @@ namespace PWS_Lab3.Controllers
         }
 
         [HttpDelete]
-        public async Task<HttpResponseMessage> Delete([FromUri] int id, [FromUri] string contentType = null)
+        public async Task<HttpResponseMessage> DeleteStudent([FromUri] int id, [FromUri] string contentType = null)
         {
             try
             {
                 var studentToDelete = await _repository.Students.Where(s => s.Id == id).SingleOrDefaultAsync();
                 if (studentToDelete is null)
-                    throw new Exception($"[ERROR] There is no students with id = {id}");
+                    throw new StudentNotFoundException(id);
 
                 var deletedStudent = _repository.Students.Remove(studentToDelete);
                 await _repository.SaveChangesAsync();

@@ -1,4 +1,4 @@
-﻿namespace PWS_Lab3.Models
+﻿namespace PWS_Lab3.Entities.Models
 {
     public class Link
     {

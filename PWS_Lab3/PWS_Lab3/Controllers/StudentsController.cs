@@ -23,7 +23,6 @@ namespace PWS_Lab3.Controllers
     {
         private readonly StudentService _service = new StudentService();
 
-        
         [HttpGet]
         public async Task<HttpResponseMessage> GetAllStudents([FromUri] StudentParameters studentParameters)
         {

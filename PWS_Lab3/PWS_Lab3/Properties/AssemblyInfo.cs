@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PWS_Lab3")]
-[assembly: AssemblyCopyright("© , 2023")]
+[assembly: AssemblyCopyright("© , 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Следующий GUID служит для идентификации (ID) библиотеки типов typelib, если этот проект видим для COM
-[assembly: Guid("80fb3c77-9394-4ff9-8190-59c9a6b91a05")]
+[assembly: Guid("9ad4b59e-ad78-4279-8306-c5c21404ed0c")]
 
 // Сведения о версии сборки состоят из указанных ниже четырех значений:
 //

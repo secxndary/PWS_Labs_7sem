@@ -1,0 +1,522 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>index</title>
+    <meta charset="utf-8" />
+    <script src="../Scripts/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" href="~/Content/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="../Content/Site.css">
+    <style>
+        .container-fluid {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px;
+        }
+
+        .container-left {
+            width: 35%;
+        }
+
+        .container-right {
+            width: 60%;
+        }
+
+        .input-group-text {
+            border-radius: 0rem;
+            border-top-left-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+            min-width: 98px;
+        }
+
+        .input-group {
+            max-width: 550px;
+        }
+
+        .custom-min-width {
+            min-width: auto;
+        }
+
+        .custom-checkbox {
+            width: 16px;
+            height: 16px;
+        }
+
+        .error-message {
+            font-size: 10px;
+            color: red;
+            margin: -15px 0 10px 0;
+        }
+
+        .error-input {
+            color: #495057;
+            background-color: #fff;
+            border-color: #fa5252; 
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(255,0,0,.25); 
+        }
+
+            .error-input:focus {
+                border-color: red !important;
+                box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25) !important;
+            }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Левая часть экрана -->
+        <div class="container-left">
+            <div class="row justify-content-center">
+                <div class="text-center">
+
+                    <!-- Радио кнопки -->
+                    <div class="row justify-content-center mt-2 mb-2">
+                        <div class="not-col-3 mr-4">Message format:</div>
+                        <div class="not-col-9">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="format" id="jsonFormat" value="json" checked>
+                                <label class="form-check-label" for="jsonFormat">JSON</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="format" id="xmlFormat" value="xml">
+                                <label class="form-check-label" for="xmlFormat">XML</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="mb-3">Get Students</h2>
+
+                    <div class="input-group mb-2">
+                        <p class="mr-3">Sort:</p>
+                        <div class=" custom-min-width align-items-center justify-content-center">
+                            <input class="custom-checkbox mt-0" type="checkbox" value="" aria-label="Checkbox for following text input">
+                        </div>
+                        @*<input type="text" id="sort" class="form-control" aria-label="Sort by NAME" readonly value="Sort by name">*@
+                    </div>
+
+                    <div id="error-offset" style="color: red;"></div>
+                    <div class="input-group mb-2" title="Смещение в списке для постраничного вывода">
+                        <span class="mr-3" id="labelOffset">Offset</span>
+                        <input type="text" id="offset" class="form-control" aria-label="Offset in the list for pagination" aria-describedby="labelOffset">
+                    </div>
+
+                    <div id="error-limit" style="color: red;"></div>
+                    <div class="input-group mb-2" title="Максимальное количество, возвращаемых элементов списка">
+                        <span class="mr-4" id="labelLimit">Limit</span>
+                        <input type="text" id="limit" class="form-control" aria-label="Maximum number of list elements returned" aria-describedby="labelLimit">
+                    </div>
+
+                    <div id="error-minid" style="color: red;"></div>
+                    <div class="input-group mb-2" title="Минимальный идентификатор">
+                        <span class="mr-3" id="labelMinId">MinId</span>
+                        <input type="text" id="minid" class="form-control" aria-label="Minimal id" aria-describedby="labelMinId">
+                    </div>
+
+                    <div id="error-maxid" style="color: red;"></div>
+                    <div class="input-group mb-2" title="Максимальный идентификатор">
+                        <span class="mr-3" id="labelMaxId">MaxId</span>
+                        <input type="text" id="maxid" class="form-control" aria-label="Maximal id" aria-describedby="labelMaxId">
+                    </div>
+
+                    <div class="input-group mb-2" title="Шаблон по полю NAME">
+                        <span class="mr-4" id="labelLike">Like</span>
+                        <input type="text" id="like" class="form-control" aria-label="Pattern by NAME field" aria-describedby="labelLike">
+                    </div>
+
+                    <div class="input-group mb-2" title="Шаблон для строк с конкатенации ID, NAME, PHONE">
+                        <span class="mr-3" id="labelGlobalLike">GlobalLike</span>
+                        <input type="text" id="global_like" class="form-control" aria-label="Pattern for strings with ID, NAME, PHONE concatenation" aria-describedby="labelGlobalLike">
+                    </div>
+
+                    <div class="input-group mb-2" title="Параметр для указания полей элементов выводимого списка (id, name, phone)">
+                        <span class="mr-4" id="labelColumns">Columns</span>
+                        <input type="text" id="columns" class="form-control" aria-label="Parameter for specifying the fields of the elements of the displayed list" aria-describedby="labelColumns">
+                    </div>
+
+                    <!-- Форма для добавления студентов -->
+                    <div>
+                        <form class="mt-5 m-x-auto bg-faded form-width text-center">
+                            <legend class="m-b-1 text-xs-center">Add Student</legend>
+
+                            <div class="input-group form-group mb-3">
+                                <label for="name-post" class="mr-4">Name</label>
+                                <input class="form-control form-input-width" id="name-post" type="text" placeholder="" />
+                                @*<div class="input-group-append" style="margin: -5px 0 0 0;">
+                                    <button type="button" class="input-group-text" style="min-width: fit-content;" onclick="clearField('name-post')"><i class="fa fa-trash"></i></button>
+                                </div>*@
+                            </div>
+                            <span id="nameError" class="error-message"></span>
+
+                            <div class="input-group form-group mb-3">
+                                <label for="phone-post" class="mr-3">Number</label>
+                                <input class="form-control form-input-width" id="phone-post" type="text"
+                                       pattern="\+375\d{9}" />
+                                @*<div class="input-group-append" style="margin: -5px 0 0 0;">
+                                    <button type="button" class="input-group-text" style="min-width: fit-content;" onclick="clearField('phone-post')"><i class="fa fa-trash"></i></button>
+                                </div>*@
+                            </div>
+                            <span id="phoneError" class="error-message"></span>
+
+                            <div class="text-xs-center">
+                                <button type="button" style="padding: 3px 10px 3px 10px" id="submitButton" onclick="">Add</button>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая часть экрана с таблицей и результатами -->
+        <div id="container-right" class="container-right">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <table id="table" class="">
+                            <thead>
+                                <tr id="tableTr">
+                                </tr>
+                            </thead>
+                            <tbody id="tbl"></tbody>
+                        </table>
+                        <div>
+                            <button class=" " id="prev" onClick="getPrevPage()">Prev</button>
+                            <button class=" " id="next" onClick="getNextPage()">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Scripts/inputsValidation.js"></script>
+    <script>
+        var pagination = 0;
+        var prevBtnBlocked = true;
+
+        getStudents();
+
+        async function createStudent(href, method) {
+            let data =
+            {
+                name: $("#name-post").val(),
+                phone: $("#phone-post").val()
+            }
+            var selectedFormat = $('input[name="format"]:checked').val();
+            if (selectedFormat === 'xml') {
+                fetch(href,
+                    {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/xml' },
+                        body: JSON.stringify(data)
+                    })
+                    .then((response) => {
+                        return response.text();
+                    })
+                    .then((data) => {
+                        console.log(data);
+                    });
+            }
+            else {
+                fetch(href,
+                    {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify(data)
+                    })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log(data);
+                    });
+            }
+            clearField("name-post");
+            clearField("phone-post");
+        }
+
+        async function updateStudent(href, method, id) {
+            let data = {};
+
+            if (document.getElementById(`${id}Name`)) {
+                data.name = document.getElementById(`${id}Name`).value;
+            }
+            if (document.getElementById(`${id}Phone`)) {
+                data.phone = document.getElementById(`${id}Phone`).value;
+            }
+
+            var selectedFormat = $('input[name="format"]:checked').val();
+            if (selectedFormat === 'xml') {
+                fetch(href,
+                    {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/xml' },
+                        body: JSON.stringify(data)
+                    })
+                    .then((response) => {
+                        return response.text();
+                    })
+                    .then((data) => {
+                        getStudents();
+                        console.log("Update was done", data);
+                    });
+            }
+            else {
+                fetch(href,
+                    {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify(data)
+                    })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        getStudents();
+                        console.log("Update was done", data);
+                    });
+            }
+        }
+
+        async function deleteStudent(href, method) {
+            var selectedFormat = $('input[name="format"]:checked').val();
+            if (selectedFormat === 'xml') {
+                fetch(href,
+                    {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/xml' }
+                    })
+                    .then((response) => {
+                        return response.text();
+                    })
+                    .then((data) => {
+                        getStudents();
+                        console.log("Delete was done", data);
+                    });
+            }
+            else {
+                fetch(href,
+                    {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+                    })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        getStudents();
+                        console.log("Delete was done", data);
+                    });
+            }
+        }
+
+        async function getNextPage() {
+            if ($("#limit").val() != "") {
+                var limit = 5;
+                var limit = $("#limit").val();
+                pagination += parseInt(limit, 10);
+                if (pagination - limit >= 0) {
+                    prevBtnBlocked = false;
+                }
+                getStudents();
+            }
+            else {
+                var limit = 5;
+                pagination += parseInt(limit, 10);
+                if (pagination - limit >= 0) {
+                    prevBtnBlocked = false;
+                }
+                getStudents();
+            }
+        }
+
+        async function getPrevPage() {
+            if ($("#limit").val() != "") {
+                var limit = $("#limit").val();
+                if (pagination - parseInt(limit, 10) <= 0) {
+                    prevBtnBlocked = true;
+                }
+                if (pagination - parseInt(limit, 10) >= 0) {
+                    pagination -= parseInt(limit, 10);
+                    getStudents();
+                }
+            }
+            else {
+                var limit = 5;
+                if (pagination - parseInt(limit, 10) <= 0) {
+                    prevBtnBlocked = true;
+                }
+                if (pagination - parseInt(limit, 10) >= 0) {
+                    pagination -= parseInt(limit, 10);
+                    getStudents();
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            $('.container-left input').on('input', function () {
+                if (isVal) {
+                    getStudents();
+                }
+            });
+        });
+
+        async function getStudents() {
+            let data = {};
+
+            console.log("getS")
+            if ($(".custom-checkbox").prop("checked")) data["sort"] = "name"
+            else data["sort"] = "id";
+            if ($("#offset").val() != "") data["offset"] = $("#offset").val();
+            if ($("#limit").val() != "") data["limit"] = $("#limit").val();
+            if ($("#minid").val() != "") data["minid"] = $("#minid").val();
+            if ($("#maxid").val() != "") data["maxid"] = $("#maxid").val();
+            if ($("#columns").val() != "") data["columns"] = $("#columns").val();
+            if ($("#global_like").val() != "") data["globalLike"] = $("#global_like").val();
+            if ($("#like").val() != "") data["like"] = $("#like").val();
+            data["pagination"] = pagination;
+
+            var selectedFormat = $('input[name="format"]:checked').val();
+            var url = new URL('/api/student', window.location.href);
+
+            url.search = new URLSearchParams(data).toString();
+
+            fetch(url,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Accept': selectedFormat === 'json' ? 'application/json' : 'application/xml'
+                    },
+                    data: data
+                })
+
+                .then((response) => {
+                    if (selectedFormat === 'json') {
+                        return response.json();
+                    } else if (selectedFormat === 'xml') {
+                        return response.text();
+                    } else {
+                        return Promise.reject(new Error('Unsupported format: ' + selectedFormat));
+                    }
+                })
+
+                .then((result) => {
+                    let html = "";
+                    let i = true;
+                    $("#tbl").html('');
+
+                    if (selectedFormat === 'xml') {
+
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(result, 'application/xml');
+
+                        var linkElement = xmlDoc.querySelector('AddStudent > link');
+                        var hrefValue = linkElement.getAttribute('href');
+                        var methodValue = linkElement.getAttribute('method');
+                        document.getElementById("submitButton").onclick = function () {
+                            createStudent(hrefValue, methodValue);
+                        };
+
+                        document.getElementById("next").disabled = $(xmlDoc).find('btnBlock').text() === 'true';
+                        document.getElementById("prev").disabled = prevBtnBlocked;
+
+                        $(xmlDoc).find('student').each(function () {
+
+                            var selfLink = $(this).find('link[rel="self"]').attr('href');
+                            var updateLink = $(this).find('link[rel="updateRecord"]').attr('href');
+                            var deleteLink = $(this).find('link[rel="deleteRecord"]').attr('href');
+                            var updateMethod = $(this).find('link[rel="updateRecord"]').attr('method');
+                            var deleteMethod = $(this).find('link[rel="deleteRecord"]').attr('method');
+
+                            if (i) {
+                                $("#tableTr").html(
+                                    ($(this).attr('id') ? '<th scope="col">Id</th>' : '') +
+                                    ($(this).attr('name') ? '<th scope="col">Name</th>' : '') +
+                                    ($(this).attr('phone') ? '<th scope="col">Phone</th>' : '') +
+                                    '<th scope="col" colspan="2"></th>'
+                                );
+                                i = false;
+                            }
+
+                            html +=
+                                `<tr xml>` +
+                                ($(this).attr('id') ? `<td>${$(this).attr('id')}</td>` : ``) +
+                                ($(this).attr('name') ? `<td><input type='text' id='${$(this).attr('id')}Name' value='${$(this).attr('name')}' name="name" /></td>` : ``) +
+                                ($(this).attr('phone') ? `<td><input type='text' id='${$(this).attr('id')}Phone' value='${$(this).attr('phone')}' name="phone" /></td>` : ``) +
+                                `<td>
+                                    <button class="m-1   " onClick='window.location.href="${selfLink}"'>Get</button>` +
+                                   `<button id="updateButton" class="updateButton m-1   " onClick='updateStudent("${updateLink}", "${updateMethod}", "${$(this).attr("id")}")'>Update</button>` +
+                                   `<button class="m-1   " onClick='deleteStudent("${deleteLink}", "${deleteMethod}")'>Delete</button>
+                                </td>` +
+                                `</tr>`;
+                        });
+                        $("#tbl").html(html);
+
+                        if ($("#columns").val() === "id") {
+                            var updateButtons = document.getElementsByClassName("updateButton");
+                            console.log(updateButtons.length)
+                            for (var n = 0; n < updateButtons.length; n++) {
+                                updateButtons[n].disabled = true;
+                                console.log(updateButtons[n].disabled)
+                            }
+                        } else {
+                            $(".updateButton").attr("disabled", false);
+                        }
+                    }
+
+                    else if (selectedFormat === 'json') {
+                        result.forEach((linksObject) => {
+                            document.getElementById("next").disabled = linksObject.btnBlock;
+                            document.getElementById("prev").disabled = prevBtnBlocked;
+
+                            console.log(linksObject.addStudent.link.href); 
+                            document.getElementById("submitButton").onclick = function () {
+                                createStudent(linksObject.addStudent.link.href, linksObject.addStudent.link.method);
+                            };
+
+                            console.log('linksObject.students[0].Id', linksObject.students[0].Id);
+                            console.log('linksObject.students[0].Name', linksObject.students[0].Name);
+                            console.log('linksObject.students[0].Phone', linksObject.students[0].Phone);
+
+                            if (i) {
+                                $("#tableTr").html(
+                                    (linksObject.students[0].Id ? '<th scope="col">Id</th>' : '') +
+                                    (linksObject.students[0].Name ? '<th scope="col">Name</th>' : '') +
+                                    (linksObject.students[0].Phone ? '<th scope="col">Phone</th>' : '') +
+                                    '<th scope="col" colspan="2"></th>');
+                                i = false;
+                            }
+
+                            linksObject.students.forEach((student) => {
+                                const linksArray = student.Links;
+
+                                const selfLink = linksArray.find(link => link.rel === "self")?.href;
+                                const updateLink = linksArray.find(link => link.rel === "updateRecord")?.href;
+                                const deleteLink = linksArray.find(link => link.rel === "deleteRecord")?.href;
+                                const updateMethod = linksArray.find(link => link.rel === "updateRecord")?.method;
+                                const deleteMethod = linksArray.find(link => link.rel === "deleteRecord")?.method;
+
+                                html +=
+                                    `<tr json>` +
+                                (student.Id ? `<td>${student.Id}</td>` : ``) +
+                                (student.Name ? `<td><input type='text' id='${student.Id}Name' value='${student.Name}' name="name" /></td>` : ``) +
+                                (student.Phone ? `<td><input type='text' id='${student.Id}Phone' value='${student.Phone}' name="phone" /></td>` : ``) +
+                                    `<td>
+                                          <button class="m-1   " onClick='window.location.href="${selfLink}"'>Get</button>` +
+                                         `<button class="m-1   " onClick='updateStudent("${updateLink}", "${updateMethod}", ${student.Id})'>Update</button>` +
+                                         `<button class="m-1   " onClick='deleteStudent("${deleteLink}", "${deleteMethod}")'>Delete</button>
+                                    </td>` +
+                                    `</tr>`;
+                            })
+                            $("#tbl").html(html);
+                        })
+                    }
+                });
+        }
+
+    </script>
+    <script src="~/Scripts/formValidation.js"></script>
+</body>
+</html>

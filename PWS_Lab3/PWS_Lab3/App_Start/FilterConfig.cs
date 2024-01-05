@@ -8,6 +8,7 @@ namespace PWS_Lab3
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
+
         }
     }
 }
